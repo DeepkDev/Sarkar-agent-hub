@@ -1,0 +1,6 @@
+{
+  "name": "Agent Hub",
+  "description": "SARKAR Agent Hub - Autonomous AI agent orchestration platform with state machine, policy engine, event sourcing, and real-time control plane.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

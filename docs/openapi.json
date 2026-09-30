@@ -1,0 +1,127 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "SARKAR Agent Hub Public API",
+    "version": "1.0.0",
+    "description": "Versioned REST & SSE API for SARKAR Agent Hub Orchestration Platform."
+  },
+  "servers": [
+    {
+      "url": "/api/v1",
+      "description": "API v1 Endpoint"
+    }
+  ],
+  "paths": {
+    "/agent/task": {
+      "post": {
+        "summary": "Create and dispatch an agent task",
+        "operationId": "createTask",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["request"],
+                "properties": {
+                  "request": { "type": "string" },
+                  "origin": { "type": "string", "enum": ["web", "api", "sarkar"], "default": "web" },
+                  "dryRun": { "type": "boolean", "default": false },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "maxSteps": { "type": "integer", "default": 10 },
+                      "maxToolCalls": { "type": "integer", "default": 15 },
+                      "maxWallClockMs": { "type": "integer", "default": 60000 }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Task created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "taskId": { "type": "string" },
+                    "status": { "type": "string" },
+                    "traceId": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/task/{id}": {
+      "get": {
+        "summary": "Get task details and state",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Task state representation" }
+        }
+      }
+    },
+    "/agent/task/{id}/events": {
+      "get": {
+        "summary": "Live Server-Sent Events (SSE) stream for task updates",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "SSE text/event-stream" }
+        }
+      }
+    },
+    "/agent/task/{id}/permissions/{permissionId}": {
+      "post": {
+        "summary": "Approve or deny pending permission request",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "permissionId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["decision"],
+                "properties": {
+                  "decision": { "type": "string", "enum": ["approve", "deny"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Decision recorded" }
+        }
+      }
+    },
+    "/tools": {
+      "get": {
+        "summary": "List all registered tool manifests and capability statuses",
+        "responses": {
+          "200": { "description": "Tool manifests array" }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Platform liveness, readiness, and provider checks",
+        "responses": {
+          "200": { "description": "Health status" }
+        }
+      }
+    }
+  }
+}
